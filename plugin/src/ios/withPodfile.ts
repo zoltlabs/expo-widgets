@@ -36,7 +36,7 @@ end
     tag: "app_ext_fix",
     src: podFileContent,
     newSrc: `
-        config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = '${AppExtValue}'
+        config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = resource_bundle_target.name == 'Sentry' ? 'YES' : '${AppExtValue}'
         `,
     anchor: /resource_bundle_target.build_configurations.each do \|config\|/,
     offset: 1,
@@ -49,7 +49,7 @@ end
     newSrc: ` installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
           config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
-          config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = '${AppExtValue}'        
+          config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = target.name == 'Sentry' ? 'YES' : '${AppExtValue}'       
         end
       end`,
     anchor: /post_install do \|installer\|/,

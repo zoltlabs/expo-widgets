@@ -6,7 +6,7 @@ An expo module that allows you to make native widgets in iOS and android.
 
 Use v1 packages for expo 49, or v2 for expo 51+. 
 
-```npx expo install @bittingz/expo-widgets```
+```npx expo install @zoltlabs/expo-widgets```
 
 ## Setup
 
@@ -17,7 +17,7 @@ See the example project for more clarity. You can omit the android or ios folder
 
 ```
 [
-    "@bittingz/expo-widgets",
+    "@zoltlabs/expo-widgets",
     {
         ios: {
             src: "./src/my/path/to/ios/widgets/folder",
@@ -52,6 +52,9 @@ See the example project for more clarity. You can omit the android or ios folder
 8. For android, set resourceName to your file name in /res/xml/***_info.xml
 9. For android apps which require multiple distributions with different package names you can use distPlaceholder which will replace all instances of the provided placeholder in widget source files with your app.config.(json/ts/js). So if your source files include "package com.company.app" and "import com.company.app" and you have two distributions (com.company.app for prod and dev.company.app for dev) then setting distPlaceholder to com.company.app will replace all package and import references to the correct distribution each build. You can omit this field if it's not relevant to you. iOS requires no configuration for multiple distribution apps.
 
+REMINDER: You must run `npx expo prebuild --clean` (the `--clean` is important here), whenever you refresh your widget code.
+Tbh, I recommend updating your widget code in a separate project so you can use xcode previews (use mock data to view different widget states), then copy it over when its ready.
+
 ## Overriding xcode options
 
 You can override xcode options in app.json (all props are optional):
@@ -78,10 +81,10 @@ The configOverrides properties are the xcodeproj values and must match case exac
 
 ```
 cd example
-npm run prebuild:ios
+npm run prebuild --clean
 npm run ios
 OR
-npm run prebuild:android
+npm run prebuild --clean
 npm run android
 ```
 
