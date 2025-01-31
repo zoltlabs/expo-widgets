@@ -1,6 +1,6 @@
 {
-  "name": "@bittingz/expo-widgets",
-  "version": "2.3.0",
+  "name": "@zoltlabs/expo-widgets",
+  "version": "2.4.0",
   "description": "An expo module that allows you to make native widgets in iOS and android",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -23,13 +23,13 @@
     "expo-widgets",
     "ExpoWidgets"
   ],
-  "repository": "https://github.com/gitn00b1337/expo-widgets",
+  "repository": "https://github.com/zoltlabs/expo-widgets",
   "bugs": {
-    "url": "https://github.com/gitn00b1337/expo-widgets/issues"
+    "url": "https://github.com/zoltlabs/expo-widgets/issues"
   },
   "author": "Mike Stewart",
   "license": "MIT",
-  "homepage": "https://github.com/gitn00b1337/expo-widgets",
+  "homepage": "https://github.com/zoltlabs/expo-widgets",
   "devDependencies": {
     "@babel/core": "^7.24.0",
     "@tsconfig/node14": "^14.1.0",
