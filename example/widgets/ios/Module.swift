@@ -14,13 +14,13 @@ public class ExpoWidgetsModule: Module {
     public func definition() -> ModuleDefinition {
         Name("ExpoWidgets")
         
-        Function("setWidgetData") { (data: String) -> Void in   
+        Function("setWidgetData") { (data: String, key: String = "MyData") -> Void in   
             let logger = Logger(logHandlers: [MyLogHandler()])     
             // here we are using UserDefaults to send data to the widget
             // you MUST use a suite name of the format group.{your project bundle id}.expowidgets
-            let widgetSuite = UserDefaults(suiteName: "group.expo.modules.widgets.example.expowidgets")
-            widgetSuite?.set(data, forKey: "MyData")
-            logger.log(message: "Encoded data saved to suite group.expo.modules.widgets.example.expowidgets, key MyData")
+            let widgetSuite = UserDefaults(suiteName: "group.com.X.XX.expowidgets")
+            widgetSuite?.set(data, forKey: key)
+            logger.log(message: "Encoded data saved to suite group.com.X.XX.expowidgets, key \(key)")
             logger.log(message: data)
 
             // this is optional, but while your app is open and in focus
