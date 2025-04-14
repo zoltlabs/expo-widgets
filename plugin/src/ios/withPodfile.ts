@@ -1,17 +1,23 @@
-import { mergeContents } from "@expo/config-plugins/build/utils/generateCode"
-import { ExportedConfigWithProps, XcodeProject, } from "expo/config-plugins"
-import * as fs from "fs"
-import * as path from "path"
-import { Logging } from "../utils/logger"
-import { WithExpoIOSWidgetsProps } from ".."
-import { getTargetName } from "./xcode/target"
+import { mergeContents } from "@expo/config-plugins/build/utils/generateCode";
+import { ExportedConfigWithProps, XcodeProject } from "expo/config-plugins";
+import * as fs from "fs";
+import * as path from "path";
+import { WithExpoIOSWidgetsProps } from "..";
+import { Logging } from "../utils/logger";
+import { getTargetName } from "./xcode/target";
 
-export const withPodfile = (config: ExportedConfigWithProps<XcodeProject>, options: WithExpoIOSWidgetsProps) => {
-  const targetName = `${getTargetName(config, options)}`
+export const withPodfile = (
+  config: ExportedConfigWithProps<XcodeProject>,
+  options: WithExpoIOSWidgetsProps,
+) => {
+  const targetName = `${getTargetName(config, options)}`;
   const AppExtAPIOnly = options.xcode?.appExtAPI ?? false;
-  const AppExtValue = AppExtAPIOnly ? 'YES' : 'No';
+  const AppExtValue = AppExtAPIOnly ? "YES" : "No";
 
-  const podFilePath = path.join(config.modRequest.platformProjectRoot, "Podfile");
+  const podFilePath = path.join(
+    config.modRequest.platformProjectRoot,
+    "Podfile",
+  );
   let podFileContent = fs.readFileSync(podFilePath).toString();
 
   const podInstaller = `
@@ -41,10 +47,10 @@ end
     anchor: /resource_bundle_target.build_configurations.each do \|config\|/,
     offset: 1,
     comment: "#",
-  })
+  });
 
   const withAppExtFixPt2 = mergeContents({
-    tag: 'fix2',
+    tag: "fix2",
     src: withAppExtFix.contents,
     newSrc: ` installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
@@ -55,14 +61,17 @@ end
     anchor: /post_install do \|installer\|/,
     offset: 1,
     comment: "#",
-  })
+  });
 
-  Logging.logger.debug('Updating podfile')
+  Logging.logger.debug("Updating podfile");
 
-  fs.writeFileSync(podFilePath, [
-    withAppExtFixPt2.contents,
-    podInstaller
-  ].join('\n'));
+  fs.writeFileSync(
+    podFilePath,
+    [
+      withAppExtFixPt2.contents,
+      podInstaller,
+    ].join("\n"),
+  );
 
   return config;
-}
+};
