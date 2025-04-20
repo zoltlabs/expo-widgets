@@ -18,9 +18,9 @@ public class ExpoWidgetsModule: Module {
             let logger = Logger(logHandlers: [MyLogHandler()])     
             // here we are using UserDefaults to send data to the widget
             // you MUST use a suite name of the format group.{your project bundle id}.expowidgets
-            let widgetSuite = UserDefaults(suiteName: "group.com.X.XX.expowidgets")
+            let widgetSuite = UserDefaults(suiteName: "group.com.zoltlabs.zolt.expowidgets")
             widgetSuite?.set(data, forKey: key)
-            logger.log(message: "Encoded data saved to suite group.com.X.XX.expowidgets, key \(key)")
+            logger.log(message: "Encoded data saved to suite group.com.zoltlabs.zolt.expowidgets, key \(key)")
             logger.log(message: data)
 
             // this is optional, but while your app is open and in focus
