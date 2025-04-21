@@ -58,8 +58,8 @@ android {
     targetCompatibility JavaVersion.VERSION_17
   }
 
-  kotlinOptions {
-    jvmTarget = JavaVersion.VERSION_17.majorVersion
+  kotlin {
+    jvmToolchain(17)
   }
 
   namespace "expo.modules.widgets"
