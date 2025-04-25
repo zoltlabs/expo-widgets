@@ -161,11 +161,11 @@ const addFilesToWidgetProject = (
 
     const shouldAddResourcesBuildPhase = () => {
       const googleServicePlistPath = path.join(iosProjectPath, 'GoogleService-Info.plist');
-      return fs.existsSync(googleServicePlistPath) || filesByType.xcassets?.length > 0;
+      return fs.existsSync(googleServicePlistPath) || filesByType.xcassets?.length > 0 || filesByType.strings?.length > 0;
     }
 
     const getResourceFiles = () => {
-      const resources = [...(filesByType.xcassets || [])];
+      const resources = [...(filesByType.xcassets || []), ...(filesByType.strings || [])];
       const googleServicePlistPath = path.join(iosProjectPath, 'GoogleService-Info.plist');
       
       if (fs.existsSync(googleServicePlistPath)) {
@@ -230,7 +230,16 @@ const addFilesToWidgetProject = (
 
         project.addResourceFile(assetFile, {
           target: targetUuid,
+        })
+      }
+    }
 
+    if (filesByType.strings) {
+      for (const stringFile of filesByType.strings) {
+        Logging.logger.debug(`Adding string file:: ${stringFile} to target ${targetUuid}`)
+        
+        project.addResourceFile(stringFile, {
+          target: targetUuid,
         })
       }
     }
