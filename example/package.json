@@ -10,13 +10,13 @@
     "prebuild:android": "EXPO_NO_CACHE=true EXPO_NO_GIT_STATUS=true expo prebuild -p android --clean"
   },
   "dependencies": {
-    "@bittingz/expo-widgets": "^2.8.0",
     "expo": "^52.0.41",
     "expo-dev-client": "~5.0.15",
     "expo-splash-screen": "~0.29.22",
     "expo-status-bar": "~2.0.1",
     "react": "18.3.1",
-    "react-native": "0.76.7"
+    "react-native": "0.76.7",
+    "@bittingz/expo-widgets": "../plugin/build"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
