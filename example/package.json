@@ -10,7 +10,7 @@
     "prebuild:android": "EXPO_NO_CACHE=true EXPO_NO_GIT_STATUS=true expo prebuild -p android --clean"
   },
   "dependencies": {
-    "@bittingz/expo-widgets": "^2.0.0-next",
+    "@bittingz/expo-widgets": "^2.8.0",
     "expo": "^52.0.41",
     "expo-dev-client": "~5.0.15",
     "expo-splash-screen": "~0.29.22",
