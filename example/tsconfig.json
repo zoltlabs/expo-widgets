@@ -3,8 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "expo-widgets": ["../src/index"],
-      "expo-widgets/*": ["../src/*"]
+      "@bittingz/expo-widgets": ["../src/index"],
+      "@bittingz/expo-widgets/*": ["../src/*"]
     }
   }
 }
