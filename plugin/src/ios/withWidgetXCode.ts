@@ -187,12 +187,12 @@ const addFilesToWidgetProject = (
       Logging.logger.debug(`Adding build phase for PBXSourcesBuildPhase ${groupTarget} to widget target ${widgetTargetUuid}`)
 
       project.addBuildPhase(
-        filesByType.swift,
+        [...filesByType.swift, ...filesByType.intentdefinition],
         "PBXSourcesBuildPhase",
         groupName,
         widgetTargetUuid,
         "app_extension", // folder type
-        "", // build path 
+        "", // build path
       )
 
       Logging.logger.debug(`Adding PBXCopyFilesBuildPhase to project ${project.getFirstTarget().uuid}`)
