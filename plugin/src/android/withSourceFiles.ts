@@ -1,146 +1,187 @@
-import path from "path"
-import { WithExpoAndroidWidgetsProps } from ".."
-import { Logging } from "../utils/logger"
-import fs from "fs-extra"
-import { ConfigPlugin, withDangerousMod, AndroidConfig } from "@expo/config-plugins"
+import path from 'path';
+import { WithExpoAndroidWidgetsProps } from '..';
+import { Logging } from '../utils/logger';
+import fs from 'fs-extra';
+import {
+  ConfigPlugin,
+  withDangerousMod,
+  AndroidConfig,
+} from '@expo/config-plugins';
 
 export const withSourceFiles: ConfigPlugin<WithExpoAndroidWidgetsProps> = (
-    config,
-    options,
+  config,
+  options
 ) => {
-    return withDangerousMod(config, [
-        "android",
-        async newConfig => {
-            const { modRequest } = newConfig;
+  return withDangerousMod(config, [
+    'android',
+    async (newConfig) => {
+      const { modRequest } = newConfig;
 
-            const projectRoot = modRequest.projectRoot;
-            const platformRoot = modRequest.platformProjectRoot;
-            const widgetFolderPath = path.join(projectRoot, options.src);
-            const packageName = AndroidConfig.Package.getPackage(config);
+      const projectRoot = modRequest.projectRoot;
+      const platformRoot = modRequest.platformProjectRoot;
+      const widgetFolderPath = path.join(projectRoot, options.src);
+      const packageName = AndroidConfig.Package.getPackage(config);
 
-            if (!packageName) {
-                throw new Error(`ExpoWidgets:: app.(ts/json) must provide a value for android.package.`);
-            }
+      if (!packageName) {
+        throw new Error(
+          `ExpoWidgets:: app.(ts/json) must provide a value for android.package.`
+        );
+      }
 
-            copyResourceFiles(widgetFolderPath, platformRoot);
+      copyResourceFiles(widgetFolderPath, platformRoot);
 
-            const sourceFiles = copySourceFiles(widgetFolderPath, platformRoot, packageName);
+      const sourceFiles = copySourceFiles(
+        widgetFolderPath,
+        platformRoot,
+        packageName
+      );
 
-            modifySourceFiles(options.distPlaceholder, sourceFiles, packageName);
+      modifySourceFiles(options.distPlaceholder, sourceFiles, packageName);
 
-            return newConfig;
-        }
-    ]);
-}
+      return newConfig;
+    },
+  ]);
+};
 
 function copyResourceFiles(widgetFolderPath: string, platformRoot: string) {
-    const resourcesFolder = path.join(widgetFolderPath, 'src/res');
-    const destinationFolder = path.join(platformRoot, 'app/src/main/res');
+  const resourcesFolder = path.join(widgetFolderPath, 'src/res');
+  const destinationFolder = path.join(platformRoot, 'app/src/main/res');
 
-    if (!fs.existsSync(resourcesFolder)) {
-        Logging.logger.debug(`No resource "res" folder found in the widget source directory ${widgetFolderPath}. No resource files copied over.`);
-        return;
-    }
+  if (!fs.existsSync(resourcesFolder)) {
+    Logging.logger.debug(
+      `No resource "res" folder found in the widget source directory ${widgetFolderPath}. No resource files copied over.`
+    );
+    return;
+  }
 
-    Logging.logger.debug(`Copying resources from ${resourcesFolder} to ${destinationFolder}`);
+  Logging.logger.debug(
+    `Copying resources from ${resourcesFolder} to ${destinationFolder}`
+  );
 
-    safeCopy(resourcesFolder, destinationFolder);
+  safeCopy(resourcesFolder, destinationFolder);
 }
 
 function safeCopy(sourcePath: string, destinationPath: string) {
-    try {
-        if (!fs.existsSync(destinationPath)) {
-            fs.mkdirSync(destinationPath);
-        }
-        
-        fs.copySync(sourcePath, destinationPath);
+  try {
+    if (!fs.existsSync(destinationPath)) {
+      fs.mkdirSync(destinationPath);
     }
-    catch (e) {
-        Logging.logger.warn(e);
-    }
+
+    fs.copySync(sourcePath, destinationPath);
+  } catch (e) {
+    Logging.logger.warn(e);
+  }
 }
 
-function getSourceFileDestinationFolder(packageName: string, widgetFolderPath: string, platformRoot: string) {
-    const packageNameAsPath = packageName?.replace(/\./g, "/");
-    
-    return path.join(platformRoot, 'app/src/main/java', packageNameAsPath);
+function getSourceFileDestinationFolder(
+  packageName: string,
+  widgetFolderPath: string,
+  platformRoot: string
+) {
+  const packageNameAsPath = packageName?.replace(/\./g, '/');
+
+  return path.join(platformRoot, 'app/src/main/java', packageNameAsPath);
 }
 
 function copySourceFiles(
-    widgetFolderPath: string,
-    platformRoot: string,
-    packageName: string,
+  widgetFolderPath: string,
+  platformRoot: string,
+  packageName: string
 ) {
-    const originalSourceFolder = path.join(widgetFolderPath, 'src/main/java/package_name');
-    const destinationFolder = getSourceFileDestinationFolder(packageName, widgetFolderPath, platformRoot);
+  const originalSourceFolder = path.join(
+    widgetFolderPath,
+    'src/main/java/package_name'
+  );
+  const destinationFolder = getSourceFileDestinationFolder(
+    packageName,
+    widgetFolderPath,
+    platformRoot
+  );
 
-    if (!fs.existsSync(destinationFolder)) {
-        fs.mkdirSync(destinationFolder);
+  if (!fs.existsSync(destinationFolder)) {
+    fs.mkdirSync(destinationFolder);
+  }
+
+  Logging.logger.debug(
+    `Copying source files from ${originalSourceFolder} to ${destinationFolder}`
+  );
+
+  const paths = fs.readdirSync(originalSourceFolder);
+
+  const sourceFiles: string[] = [];
+
+  for (const relativePath of paths) {
+    const sourcePath = path.join(originalSourceFolder, relativePath);
+    const destinationPath = path.join(destinationFolder, relativePath);
+
+    if (fs.lstatSync(sourcePath).isDirectory()) {
+      // If src is a directory it will copy everything inside of this directory, not the entire directory itself
+      fs.emptyDirSync(destinationPath);
     }
 
-    Logging.logger.debug(`Copying source files from ${originalSourceFolder} to ${destinationFolder}`);
+    const file = path.basename(relativePath);
 
-    const paths = fs.readdirSync(originalSourceFolder);
-
-    const sourceFiles: string[] = [];
-
-    for (const relativePath of paths) {
-        const sourcePath = path.join(originalSourceFolder, relativePath);
-        const destinationPath = path.join(destinationFolder, relativePath);
-
-        if (fs.lstatSync(sourcePath).isDirectory()) {
-            // If src is a directory it will copy everything inside of this directory, not the entire directory itself
-            fs.emptyDirSync(destinationPath);
-        }
-        
-        const file = path.basename(relativePath);
-        
-        if (file === "Module.kt") {
-            Logging.logger.debug("Module file skipped during source file copy.");
-            continue;
-        }
-
-        Logging.logger.debug(`Copying file ${sourcePath} to ${destinationPath}`);
-        fs.copySync(sourcePath, destinationPath);
-        sourceFiles.push(destinationPath);
+    if (file === 'Module.kt') {
+      Logging.logger.debug('Module file skipped during source file copy.');
+      continue;
     }
 
-    return sourceFiles;
+    Logging.logger.debug(`Copying file ${sourcePath} to ${destinationPath}`);
+    fs.copySync(sourcePath, destinationPath);
+    sourceFiles.push(destinationPath);
+  }
+
+  return sourceFiles;
 }
 
 function escapeRegExp(str: string) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-  
-function replaceAll(source: string, find: string, replace: string) {
-return source.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function modifySourceFiles(distPlaceholder: string, sourceFiles: string[], packageName: string) {
-    if (!distPlaceholder?.length) {
-        Logging.logger.debug("No distPlaceholder set. Modification of source files not required.");
-        return;
-    }
-    else if (sourceFiles.length == 0) {
-        Logging.logger.debug("No source files provided for modification.");
-        return;
-    }
+function replaceAll(source: string, find: string, replace: string) {
+  return source.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+}
 
-    Logging.logger.debug(`Modifying source files with placeholder ${distPlaceholder} to package ${packageName}`);
+function modifySourceFiles(
+  distPlaceholder: string,
+  sourceFiles: string[],
+  packageName: string
+) {
+  if (!distPlaceholder?.length) {
+    Logging.logger.debug(
+      'No distPlaceholder set. Modification of source files not required.'
+    );
+    return;
+  } else if (sourceFiles.length == 0) {
+    Logging.logger.debug('No source files provided for modification.');
+    return;
+  }
 
-    const packageSearchStr = `package ${distPlaceholder}`;
-    const packageReplaceStr = `package ${packageName}`;
+  Logging.logger.debug(
+    `Modifying source files with placeholder ${distPlaceholder} to package ${packageName}`
+  );
 
-    const importSearchStr = `import ${distPlaceholder}`;
-    const importReplaceStr = `import ${packageName}`;
+  const packageSearchStr = `package ${distPlaceholder}`;
+  const packageReplaceStr = `package ${packageName}`;
 
-    for (const filePath of sourceFiles) {
-        const contents = fs.readFileSync(filePath, { encoding: 'utf-8' });
-        Logging.logger.debug(contents);
+  const importSearchStr = `import ${distPlaceholder}`;
+  const importReplaceStr = `import ${packageName}`;
 
-        const withModulesFixed = replaceAll(contents, packageSearchStr, packageReplaceStr);
-        const withImportsFixed = replaceAll(withModulesFixed, importSearchStr, importReplaceStr);
+  for (const filePath of sourceFiles) {
+    const contents = fs.readFileSync(filePath, { encoding: 'utf-8' });
+    Logging.logger.debug(contents);
 
-        fs.writeFileSync(filePath, withImportsFixed);
-    }
+    const withModulesFixed = replaceAll(
+      contents,
+      packageSearchStr,
+      packageReplaceStr
+    );
+    const withImportsFixed = replaceAll(
+      withModulesFixed,
+      importSearchStr,
+      importReplaceStr
+    );
+
+    fs.writeFileSync(filePath, withImportsFixed);
+  }
 }

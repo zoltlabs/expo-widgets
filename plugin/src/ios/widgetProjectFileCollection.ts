@@ -13,6 +13,7 @@ export class WidgetProjectFileCollection {
       plist: [],
       xcassets: [],
       intentdefinition: [],
+      strings: [],
     };
   }
 

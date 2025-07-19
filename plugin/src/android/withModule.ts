@@ -24,10 +24,11 @@ export const withModule: ConfigPlugin<WithExpoAndroidWidgetsProps> = (
             }
 
             const packageNameAsPath = packageName?.replace(/\./g, "/");
-            const moduleSourcePath = path.join(widgetFolderPath, 'src/main/java/package_name/ExpoWidgetsModule.kt');
+            const moduleSourcePath = path.join(widgetFolderPath, 'src/main/java/package_name/Module.kt');
+            Logging.logger.debug('moduleSourcePath: ', moduleSourcePath);
             const moduleDestinationPath = path.join(
                 projectRoot, 
-                'android/src/main/java', 
+                'android/app/src/main/java', 
                 packageNameAsPath, 
                 'Module.kt'
             );
@@ -35,6 +36,10 @@ export const withModule: ConfigPlugin<WithExpoAndroidWidgetsProps> = (
             if (!fs.existsSync(moduleSourcePath)) {
                 Logging.logger.debug('No module file found. Adding template...');
                 const contents = getTemplate(packageName);
+                Logging.logger.debug('Writing contents');
+                fs.writeFileSync(moduleDestinationPath, contents)
+            } else {
+                fs.copyFileSync(moduleSourcePath,  moduleDestinationPath)
             }
 
             return newConfig;

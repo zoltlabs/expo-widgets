@@ -1,9 +1,3 @@
-
-export function getTemplate(packageDefinition: string) {
-    return `
-/*
-    Module code inserted by expo-widgets.
-*/
 package expo.modules.widgets
 
 import android.content.Context
@@ -50,5 +44,4 @@ class ExpoWidgetsModule : Module() {
   private fun getPreferences(packageName: String): SharedPreferences {
     return context.getSharedPreferences(packageName + ".widgetdata", Context.MODE_PRIVATE)
   }
-}`;
 }

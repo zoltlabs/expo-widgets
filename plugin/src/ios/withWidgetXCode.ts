@@ -161,11 +161,11 @@ const addFilesToWidgetProject = (
 
     const shouldAddResourcesBuildPhase = () => {
       const googleServicePlistPath = path.join(iosProjectPath, 'GoogleService-Info.plist');
-      return fs.existsSync(googleServicePlistPath) || filesByType.xcassets?.length > 0;
+      return fs.existsSync(googleServicePlistPath) || filesByType.xcassets?.length > 0 || filesByType.strings?.length > 0;
     }
 
     const getResourceFiles = () => {
-      const resources = [...(filesByType.xcassets || [])];
+      const resources = [...(filesByType.xcassets || []), ...(filesByType.strings || [])];
       const googleServicePlistPath = path.join(iosProjectPath, 'GoogleService-Info.plist');
       
       if (fs.existsSync(googleServicePlistPath)) {
@@ -187,12 +187,12 @@ const addFilesToWidgetProject = (
       Logging.logger.debug(`Adding build phase for PBXSourcesBuildPhase ${groupTarget} to widget target ${widgetTargetUuid}`)
 
       project.addBuildPhase(
-        filesByType.swift,
+        [...filesByType.swift, ...filesByType.intentdefinition],
         "PBXSourcesBuildPhase",
         groupName,
         widgetTargetUuid,
         "app_extension", // folder type
-        "", // build path 
+        "", // build path
       )
 
       Logging.logger.debug(`Adding PBXCopyFilesBuildPhase to project ${project.getFirstTarget().uuid}`)
@@ -230,7 +230,16 @@ const addFilesToWidgetProject = (
 
         project.addResourceFile(assetFile, {
           target: targetUuid,
+        })
+      }
+    }
 
+    if (filesByType.strings) {
+      for (const stringFile of filesByType.strings) {
+        Logging.logger.debug(`Adding string file:: ${stringFile} to target ${targetUuid}`)
+        
+        project.addResourceFile(stringFile, {
+          target: targetUuid,
         })
       }
     }
